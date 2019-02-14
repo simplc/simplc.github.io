@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.4.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-simplc.png?v=6.4.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-simplc.png?v=6.4.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Title: SoPa: Bridging CNNs, RNNs, and Weighted Finite-State MachinesAuthors: Roy Schwartz, Sam Thomson, Noah A. SmithSource: ACL2018">
+<meta name="keywords" content="SLU,WFST">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SoPa">
+<meta property="og:url" content="https://simplc.github.io/2018/10/12/soft-pattern/index.html">
+<meta property="og:site_name" content="Simple LC">
+<meta property="og:description" content="Title: SoPa: Bridging CNNs, RNNs, and Weighted Finite-State MachinesAuthors: Roy Schwartz, Sam Thomson, Noah A. SmithSource: ACL2018">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://simplc.github.io/2018/10/12/soft-pattern/fa-summary.png">
+<meta property="og:image" content="https://simplc.github.io/2018/10/12/soft-pattern/semiring-samples.png">
+<meta property="og:updated_time" content="2019-02-13T03:26:52.816Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SoPa">
+<meta name="twitter:description" content="Title: SoPa: Bridging CNNs, RNNs, and Weighted Finite-State MachinesAuthors: Roy Schwartz, Sam Thomson, Noah A. SmithSource: ACL2018">
+<meta name="twitter:image" content="https://simplc.github.io/2018/10/12/soft-pattern/fa-summary.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://simplc.github.io/2018/10/12/soft-pattern/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>SoPa | Simple LC</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Simple LC</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://simplc.github.io/2018/10/12/soft-pattern/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Simplc">
+      <meta itemprop="description" content="Forever youthful, forever weeping">
+      <meta itemprop="image" content="/images/self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Simple LC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SoPa
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-10-12 16:27:28" itemprop="dateCreated datePublished" datetime="2018-10-12T16:27:28+08:00">2018-10-12</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-02-13 11:26:52" itemprop="dateModified" datetime="2019-02-13T11:26:52+08:00">2019-02-13</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/论文阅读/" itemprop="url" rel="index"><span itemprop="name">论文阅读</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/10/12/soft-pattern/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">Comments: </span> <span class="post-comments-count valine-comment-count" data-xid="/2018/10/12/soft-pattern/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2018/10/12/soft-pattern/" class="leancloud_visitors" data-flag-title="SoPa">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p><strong>Title</strong>: SoPa: Bridging CNNs, RNNs, and Weighted Finite-State Machines<br><strong>Authors</strong>: Roy Schwartz, Sam Thomson, Noah A. Smith<br><strong>Source</strong>: ACL2018 </p>
+</blockquote>
+<a id="more"></a>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="Finite-Automata-FA"><a href="#Finite-Automata-FA" class="headerlink" title="Finite Automata (FA)"></a>Finite Automata (FA)</h3><h4 id="四种FA对比"><a href="#四种FA对比" class="headerlink" title="四种FA对比"></a>四种FA对比</h4><p><img src="fa-summary.png" alt="fa-summary"></p>
+<blockquote>
+<p><strong>FSA</strong> represents a set of symbol sequences that can be accepted.<br><strong>FST</strong> can describe a set of rules for conversion or <em>transduction</em> from one symbol sequence to another.</p>
+</blockquote>
+<h4 id="Semiring"><a href="#Semiring" class="headerlink" title="Semiring"></a>Semiring</h4><p>将加权有限状态接收器/转换器中的权重及其二元运算（“加”和“乘”）规范化定义。类似于一个新的空间（类比于矩阵的<strong>内积空间</strong>），对各种运算有新的定义。<br>Semiring定义：$(\mathbb{K}, \oplus, \otimes, \bar{0}, \bar{1})$<br>例子：<br><img src="semiring-samples.png" alt="semiring-samples"><br>其中 $x \oplus_{\log} y = -\log(e^{-x}+e^{-y})$</p>
+<h4 id="WFSA要素"><a href="#WFSA要素" class="headerlink" title="WFSA要素"></a>WFSA要素</h4><ol>
+<li>$\Sigma$: 输入集</li>
+<li>$Q$: 有限状态集，大小为$d$。其中$I, F\subseteq Q$分别是初始/终止状态</li>
+<li>$\mathbf{T}$: 权重转移矩阵，$\Sigma\cup\lbrace\epsilon\rbrace\to\mathbb{R}^{d\times d}$</li>
+<li>$\pi,\eta\in\mathbb{R}^d$ : 初始/终止权重向量</li>
+</ol>
+<h2 id="Notes"><a href="#Notes" class="headerlink" title="Notes"></a>Notes</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>利用WFSA的思路构建新的神经网络结构，用于text classification</p>
+<h3 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h3><ol>
+<li>定义k个长度不同的patterns，每个pattern都是一个有d个states的WFSA</li>
+<li>用k个patterns对一个doc中的所有span打分，得到k个score</li>
+<li>这k个score组成的向量作为MLP/RNN的输入</li>
+</ol>
+<h3 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h3><p>对于一个pattern，一个长度为n的word sequence输入，记作$\mathbf{x}$，按照如下公式打分：<br>$$<br>P_{span}(\mathbf{x})=\pi^T\mathbf{T}(\epsilon)^\ast\left(\prod_{i=1}^{n}\mathbf{T}(\mathbf{x}_i)\mathbf{T}(\epsilon)^\ast\right)\eta<br>$$<br>其中，$\mathbf{T}(\epsilon)^\ast\approx \mathbf{I}+\mathbf{T}(\epsilon)$为一阶近似，转移权重矩阵为<br>$$<br>\mathbf{T}(\mathbf{x})=<br>\begin{cases}<br>E(\mathbf{u}_i\mathbf{v}_x+a_i)&amp; \text{$j=i$}\\<br>E(\mathbf{w}_i\mathbf{v}_x+b_i)&amp; \text{$j=i+1$}\\<br>0&amp; \text{otherwise}<br>\end{cases}<br>$$<br>其中E为sigmoid或者identity函数，$\mathbf{u}_i  \mathbf{w}_i$为可训练的权重向量。对于为可训练的权重向量。对于为可训练的权重向量。对于为可训练的权重向量。对于$\epsilon$转移：<br>$$<br>\mathbf{T}(\mathbf{x})=<br>\begin{cases}<br>E(c_i)&amp; \text{$j=i+1$}\\<br>0&amp; \text{otherwise}<br>\end{cases}<br>$$<br>这里的计算均是基于Semiring中的计算法则，本文中采用max-product，即<br>$$<br>\begin{align}<br>A \oplus B &amp;= max(A, B) \<br>A \otimes B &amp;= maxmul(A, B) \<br>\left[maxmul(A, B)\right]_{i,j} &amp;= \max_k{A_{i,k}B_{k,j}}<br>\end{align}<br>$$</p>
+<p>定义$eps(\mathbf{h})=maxmul(\mathbf{h}, max(\mathbf{I}, \mathbf{T}(\epsilon)))$，代表$\mathbf{h}\mathbf{T}(\epsilon)^\ast$，维护一个d维state向量$\mathbf{h}_t$:<br>$$<br>\begin{align}<br>\mathbf{h}<em>0&amp;=eps(\pi^T)\<br>\mathbf{h}</em>{t+1}&amp;=\max(eps(maxmul(\mathbf{h}<em>t, \mathbf{T}(x</em>{t+1}))), \mathbf{h}_0)\<br>s_t&amp;=maxmul(\mathbf{h}_t, \eta)<br>\end{align}<br>$$<br>经过反复更新最终可以得到一个值，即上边公式的计算值。$s_t$计算时等于取state向量的最后一维。注意以上计算是针对<strong>一个pattern一个span</strong>来说的，而对于一个文档的打分是在所有可能的span中取最大值。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>Really appreciate it!</div>
+  <!--<button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>-->
+  <button id="rewardButton" disable="enable" style="width: 80px;
+      line-height: 38px;
+      text-align: center;
+      font-weight: bold;
+      color: #fff;
+      border-radius: 5px;
+      margin:0 20px 20px 0;
+      position: relative;
+      overflow: hidden;
+      color: #8c96a0;
+      text-shadow:1px 1px 1px #fff;
+      border:1px solid #dce1e6;
+      box-shadow: 0 1px 2px #fff inset,0 -1px 0 #a8abae inset;
+      background: -webkit-linear-gradient(top,#f2f3f7,#e4e8ec);
+      background: -moz-linear-gradient(top,#f2f3f7,#e4e8ec);
+      background: linear-gradient(top,#f2f3f7,#e4e8ec);" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+  请喝咖啡
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay_simplc.png" alt="Simplc Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/SLU/" rel="tag"><i class="fa fa-tag"></i> SLU</a>
+          
+            <a href="/tags/WFST/" rel="tag"><i class="fa fa-tag"></i> WFST</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/12/hexo-tut/" rel="next" title="Hexo 日常">
+                <i class="fa fa-chevron-left"></i> Hexo 日常
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/17/tools/" rel="prev" title="tools">
+                tools <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/self.jpg" alt="Simplc">
+            
+              <p class="site-author-name" itemprop="name">Simplc</p>
+              <p class="site-description motion-element" itemprop="description">Forever youthful, forever weeping</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Finite-Automata-FA"><span class="nav-number">1.1.</span> <span class="nav-text">Finite Automata (FA)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#四种FA对比"><span class="nav-number">1.1.1.</span> <span class="nav-text">四种FA对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Semiring"><span class="nav-number">1.1.2.</span> <span class="nav-text">Semiring</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WFSA要素"><span class="nav-number">1.1.3.</span> <span class="nav-text">WFSA要素</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Notes"><span class="nav-number">2.</span> <span class="nav-text">Notes</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述"><span class="nav-number">2.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本思路"><span class="nav-number">2.2.</span> <span class="nav-text">基本思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#细节"><span class="nav-number">2.3.</span> <span class="nav-text">细节</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Simplc</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Mist</a> v6.4.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'lvQN3eeUwuN7eIqryDrMgLCv-gzGzoHsz',
+        appKey: 'dAWkOYvPJczXeV55JpGXGERA',
+        placeholder: ':)',
+        avatar:'identicon',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: true
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
