@@ -39,7 +39,7 @@ function getScore(){
                 alert("呀！辰序员得了" + s.toString() + "分！辰序员一定会继续努力，好好照顾猪宝宝！送你一个密码zzbbsqtxzkadzz去找辰序员吧～");
                 break;
             case 3:
-                alert("咦！辰序员得了" + s.toString() + "分，辰序员一定会再接再厉，好好爱护猪宝宝！送你一个密码zzbbsqtxzkadzz去找辰序员吧～");
+                alert("咦！辰序员得了" + s.toString() + "分，辰序员要加把劲，好好爱护猪宝宝！送你一个密码zzbbsqtxzkadzz去找辰序员吧～");
                 break;
             case 2:
                 alert("哭哭  辰序员挂科了，只有" + s.toString() + "分 辰序员知道自己做的不好，辰序员今后要做一个温柔的人，要对猪猪好，不让猪猪受委屈  （送你一个密码zzbbsqtxzkadzz去找辰序员吧）");
